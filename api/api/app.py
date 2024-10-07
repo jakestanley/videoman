@@ -21,6 +21,10 @@ stop_event = threading.Event()
 def scan_videos():
     while not stop_event.is_set():
         print("Scanning for new videos...")
+
+        # TODO load cache
+        videos = list_videos()
+        
         time.sleep(5)
 
     print("Cleaning up video scan...")
@@ -50,8 +54,9 @@ def home():
 @app.route("/videos", methods=['GET'])
 def get_videos():
 
-    videos = [video.dictify() for video in list_videos()]
-    return jsonify(videos)
+    # videos = [video.dictify() for video in list_videos()]
+    # return jsonify(videos)
+    return jsonify({"message": "OK"})
 
 if __name__ == '__main__':
     scan_thread = start_video_scan_thread()

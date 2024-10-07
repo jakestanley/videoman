@@ -5,6 +5,7 @@ import uuid
 from tabulate import tabulate
 
 from api.args import get_args
+from api.preview import generate_preview
 
 # TODO: scanner worker/background task
 # TODO: if the user deletes a video and the video at that path does not match 
@@ -62,6 +63,9 @@ def list_videos():
         
         for video_file in video_files:
             videos.append(Video(parent_directory=video_directory, relative_path=video_file))
+
+        for video in videos:
+            generate_preview(os.path.join(video.parent_directory, video.relative_path))
 
         table_data = [[video.id, video.hash, os.path.join(video.parent_directory, video.relative_path)] for video in videos]
         headers = ["ID", "Hash", "Path"]
