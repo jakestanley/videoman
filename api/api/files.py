@@ -21,12 +21,13 @@ class Video:
         # calculates the hash every time, not very efficient
 
         
-        if hash is None:
-            hasher = hashlib.sha256()
-            with open(full_path, 'rb') as f:
-                buf = f.read()
-                hasher.update(buf)
-            self.hash = hasher.hexdigest()
+#        if hash is None:
+#            hasher = hashlib.sha256()
+#            with open(full_path, 'rb') as f:
+#                buf = f.read()
+#                hasher.update(buf)
+#            self.hash = hasher.hexdigest()
+        self.hash = None
 
         if id is None:
             self.id = uuid.uuid4()
@@ -48,12 +49,14 @@ def list_videos():
     try:
 
         video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm'}
+        video_files = []
 
-        video_files = [
-            f for f in os.listdir(video_directory)
-            if os.path.isfile(os.path.join(video_directory, f)) and
-            os.path.splitext(f)[1].lower() in video_extensions
-        ]
+        for root, dirs, files in os.walk(video_directory):
+            for file in files:
+                if file.startswith('.'):
+                    continue
+                if os.path.splitext(file)[1].lower() in video_extensions:
+                    video_files.append(file)
 
         print(f"Files in '{video_directory}':")
         
