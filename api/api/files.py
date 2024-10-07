@@ -4,6 +4,8 @@ import uuid
 
 from tabulate import tabulate
 
+from api.args import get_args
+
 # TODO: scanner worker/background task
 # TODO: if the user deletes a video and the video at that path does not match 
 #   the loaded hash, we will not delete the video at that path. as this means 
@@ -11,7 +13,7 @@ from tabulate import tabulate
 #   do not have matching hashes and create new IDs for them
 class Video:
     def __init__(self, parent_directory, relative_path, id=None, hash=None):
-
+        # TODO store with pickledb
         full_path = os.path.join(parent_directory, relative_path)
 
         self.parent_directory = parent_directory
@@ -36,10 +38,11 @@ class Video:
             'path': self.relative_path
         }
 
-def load_files(video_directory):
+def load_files():
     pass
 
-def list_videos(video_directory):
+def list_videos():
+    video_directory = get_args().video_directory
     videos = []
     # List all files in the directory
     try:

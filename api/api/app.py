@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 
-from args import get_args
-from files import list_videos
-from cache import get_cache_dir
+from api.args import get_args
+from api.files import list_videos
+from api.cache import get_cache_dir
 
 app = Flask(__name__)
 args = get_args()
@@ -18,7 +18,7 @@ def home():
 @app.route("/videos", methods=['GET'])
 def get_videos():
 
-    videos = [video.dictify() for video in list_videos(args.video_directory)]
+    videos = [video.dictify() for video in list_videos()]
     return jsonify(videos)
 
 if __name__ == '__main__':
