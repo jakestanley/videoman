@@ -126,7 +126,10 @@ def list_videos():
             cache_dir = get_cache_dir(video_directory)
             gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
             if not os.path.exists(gif_output_path):
-                generate_preview(video_path=video_path, gif_output_path=gif_output_path)
+                try:
+                    generate_preview(video_path=video_path, gif_output_path=gif_output_path)
+                except ValueError as e:
+                    print(f"Error generating preview for {video_path}: {e}")
 
         # for video_file in video_files:
         #     videos.append(Video(parent_directory=video_directory, relative_path=video_file))
