@@ -49,10 +49,76 @@ def hash_file_path(file_path):
 def load_files():
     pass
 
+def process_video_file(video_file):
+    video_directory = get_args().video_directory
+
+    print(f"Processing video '{video_file}")
+    r = redis.Redis(host='localhost', port=6379, db=0)
+
+    try:
+        id = None
+
+        file_path_hash = hash_file_path(video_file)
+        video_path = os.path.join(video_directory, video_file)
+
+        id = r.get(file_path_hash)
+        if id is None:
+            print(f"creating record for '{video_path}'")
+            id = str(uuid.uuid4())
+            r.set(file_path_hash, id)
+
+        video = r.hgetall(id)
+
+        # new video
+        if video == {}:
+
+            hasher = hashlib.sha256()
+            with open(video_path, 'rb') as f:
+                buf = f.read()
+                hasher.update(buf)
+            hash = hasher.hexdigest()
+
+            video = {
+                'id': id,
+                'path': video_path,
+                'modified': os.path.getmtime(video_path),
+                'contents_hash': hash
+            }
+        # if video has modified key and it has not changed, skip the rehash
+        else:
+            # TODO: if modified has changed, recalculate the hash
+            if video.get('modified') and video['modified'] == os.path.getmtime(video_path):
+                print(f"Modified date unchanged for '{video_path}'")
+            else:
+                hasher = hashlib.sha256()
+                with open(video_path, 'rb') as f:
+                    buf = f.read()
+                    hasher.update(buf)
+                hash = hasher.hexdigest()
+
+                video['modified'] = os.path.getmtime(video_path)
+                video['contents_hash'] = hash
+
+        # save the video to redis
+        r.hset(id, mapping=video)
+
+        # generate gif if it doesn't exist for this hash
+        cache_dir = get_cache_dir(video_directory)
+        gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
+        if not os.path.exists(gif_output_path):
+            try:
+                generate_preview(video_path=video_path, gif_output_path=gif_output_path)
+            except ValueError as e:
+                print(f"Error generating preview for {video_path}: {e}")
+
+    except FileNotFoundError as e:
+        print(f"Failed to process {video_file}")
+    except NotADirectoryError:
+        print(f"The path '{video_directory}' is not a directory.")
+
 def list_video_files():
     video_directory = get_args().video_directory
     video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
-    video_files = []
 
     print(f"Scanning '{video_directory}' for video files...")
     for dirpath, _, files in os.walk(video_directory):
@@ -60,76 +126,16 @@ def list_video_files():
             if file.startswith('.'):
                 continue
             if os.path.splitext(file)[1].lower() in video_extensions:
-                video_files.append(os.path.relpath(os.path.join(dirpath, file), video_directory))
-
-    return video_files
+                process_video_file(os.path.relpath(os.path.join(dirpath, file), video_directory))
 
 def list_videos():
     video_directory = get_args().video_directory
     videos = []
+
+    list_video_files()
     # List all files in the directory
 
-    r = redis.Redis(host='localhost', port=6379, db=0)
-
-    try:
-
-        video_files = list_video_files()
-
-        for video_file in video_files:
-            id = None
-
-            file_path_hash = hash_file_path(video_file)
-            video_path = os.path.join(video_directory, video_file)
-
-            id = r.get(file_path_hash)
-            if id is None:
-                print(f"creating record for '{video_path}'")
-                id = str(uuid.uuid4())
-                r.set(file_path_hash, id)
-
-            video = r.hgetall(id)
-
-            # new video
-            if video == {}:
-
-                hasher = hashlib.sha256()
-                with open(video_path, 'rb') as f:
-                    buf = f.read()
-                    hasher.update(buf)
-                hash = hasher.hexdigest()
-
-                video = {
-                    'id': id,
-                    'path': video_path,
-                    'modified': os.path.getmtime(video_path),
-                    'contents_hash': hash
-                }
-            # if video has modified key and it has not changed, skip the rehash
-            else:
-                # TODO: if modified has changed, recalculate the hash
-                if video.get('modified') and video['modified'] == os.path.getmtime(video_path):
-                    print(f"Modified date unchanged for '{video_path}'")
-                else:
-                    hasher = hashlib.sha256()
-                    with open(video_path, 'rb') as f:
-                        buf = f.read()
-                        hasher.update(buf)
-                    hash = hasher.hexdigest()
-
-                    video['modified'] = os.path.getmtime(video_path)
-                    video['contents_hash'] = hash
-
-            # save the video to redis
-            r.hset(id, mapping=video)
-
-            # generate gif if it doesn't exist for this hash
-            cache_dir = get_cache_dir(video_directory)
-            gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
-            if not os.path.exists(gif_output_path):
-                try:
-                    generate_preview(video_path=video_path, gif_output_path=gif_output_path)
-                except ValueError as e:
-                    print(f"Error generating preview for {video_path}: {e}")
+    
 
         # for video_file in video_files:
         #     videos.append(Video(parent_directory=video_directory, relative_path=video_file))
@@ -147,10 +153,7 @@ def list_videos():
         # headers = ["ID", "Hash", "Path"]
 
         # print(tabulate(table_data, headers=headers, tablefmt='pretty'))
-    except FileNotFoundError as e:
-        print(f"The directory '{video_directory}' does not exist.")
-    except NotADirectoryError:
-        print(f"The path '{video_directory}' is not a directory.")
+
 
     return videos
 
