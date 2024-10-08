@@ -9,8 +9,15 @@
             "type": "debugpy",
             "request": "launch",
             "program": "api/api/app.py",
-            "console": "integratedTerminal",
-            "args": ["-v", "/Users/jake/Movies/BATW2/"]
+            "args": ["-v", "/Users/jake/Movies/Test/"]
+        }, {
+            "name": "Debug: Scan",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceFolder}/api/.venv/bin/scan",
+            "cwd": "${workspaceFolder}/api",
+            "args": ["-v", "/Users/jake/Movies/Test3/"]
         }
     ]
 }

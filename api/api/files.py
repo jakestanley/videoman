@@ -58,15 +58,15 @@ def list_videos():
 
     try:
 
-        video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm'}
+        video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
         video_files = []
 
-        for root, dirs, files in os.walk(video_directory):
+        for dirpath, _, files in os.walk(video_directory):
             for file in files:
                 if file.startswith('.'):
                     continue
                 if os.path.splitext(file)[1].lower() in video_extensions:
-                    video_files.append(file)
+                    video_files.append(os.path.relpath(os.path.join(dirpath, file), video_directory))
 
         print(f"Files in '{video_directory}':")
 
@@ -74,6 +74,7 @@ def list_videos():
             id = None
             file_path_hash = hash_file_path(video_file)
 
+            # TODO if the hash hasn't changed and a gif exists, do not regenerate the gif unless forced
             id = r.get(file_path_hash)
             if id is None:
                 id = str(uuid.uuid4())
@@ -128,6 +129,8 @@ def list_videos():
             try:
                 generate_preview(os.path.join(video.parent_directory, video.relative_path))
             except ValueError as e:
+                print(f"Error generating preview for {video.relative_path}: {e}")
+            except FileNotFoundError as e:
                 print(f"Error generating preview for {video.relative_path}: {e}")
 
         table_data = [[video.id, video.hash, os.path.join(video.parent_directory, video.relative_path)] for video in videos]
