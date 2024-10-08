@@ -19,8 +19,9 @@ def generate_frame_at(video_path, frames_dir, seconds, index):
         "box=1:boxcolor=black@0.5:boxborderw=10"
     )
 
+    # TODO: debug mode that disables quiet?
     command = [
-        "ffmpeg", "-y",
+        "ffmpeg", "-y", "-loglevel", "quiet",
         "-ss", str(seconds),
         "-i", video_path,
         "-vframes", "1",
@@ -43,7 +44,7 @@ def generate_frames(video_path, interval_length, intervals, frames_dir):
 def generate_gif(frames_dir, gif_output_path):
 
     command = [
-        "ffmpeg", "-y",
+        "ffmpeg", "-y", "-loglevel", "quiet",
         "-framerate", "4",
         "-i", "image_%08d.jpg",
         "-pix_fmt", "rgb8",
@@ -53,13 +54,14 @@ def generate_gif(frames_dir, gif_output_path):
     subprocess.run(command, cwd=frames_dir)
     shutil.rmtree(frames_dir, ignore_errors=True)
 
-def generate_preview(video_path):
-    
+def generate_preview(video_path, gif_output_path=None):
+
     interval_length = 30
     video_length_in_seconds = get_video_length_in_seconds(video_path)
     intervals = int(video_length_in_seconds // interval_length) + 1
     frames_dir = os.path.splitext(video_path)[0] + "-frames"
-    gif_output_path = os.path.splitext(video_path)[0] + ".gif"
+    if gif_output_path is None:
+        gif_output_path = os.path.splitext(video_path)[0] + ".gif"
     
     generate_frames(video_path, interval_length, intervals, frames_dir)
     generate_gif(frames_dir, gif_output_path)

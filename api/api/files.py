@@ -49,6 +49,21 @@ def hash_file_path(file_path):
 def load_files():
     pass
 
+def list_video_files():
+    video_directory = get_args().video_directory
+    video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
+    video_files = []
+
+    print(f"Scanning '{video_directory}' for video files...")
+    for dirpath, _, files in os.walk(video_directory):
+        for file in files:
+            if file.startswith('.'):
+                continue
+            if os.path.splitext(file)[1].lower() in video_extensions:
+                video_files.append(os.path.relpath(os.path.join(dirpath, file), video_directory))
+
+    return video_files
+
 def list_videos():
     video_directory = get_args().video_directory
     videos = []
@@ -58,84 +73,74 @@ def list_videos():
 
     try:
 
-        video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
-        video_files = []
-
-        for dirpath, _, files in os.walk(video_directory):
-            for file in files:
-                if file.startswith('.'):
-                    continue
-                if os.path.splitext(file)[1].lower() in video_extensions:
-                    video_files.append(os.path.relpath(os.path.join(dirpath, file), video_directory))
-
-        print(f"Files in '{video_directory}':")
+        video_files = list_video_files()
 
         for video_file in video_files:
             id = None
-            file_path_hash = hash_file_path(video_file)
 
-            # TODO if the hash hasn't changed and a gif exists, do not regenerate the gif unless forced
+            file_path_hash = hash_file_path(video_file)
+            video_path = os.path.join(video_directory, video_file)
+
             id = r.get(file_path_hash)
             if id is None:
                 id = str(uuid.uuid4())
                 r.set(file_path_hash, id)
 
-            # TODO: might need some
             video = r.hgetall(id)
+
+            # new video
             if video == {}:
 
                 hasher = hashlib.sha256()
-                with open(os.path.join(video_directory, video_file), 'rb') as f:
+                with open(video_path, 'rb') as f:
                     buf = f.read()
                     hasher.update(buf)
                 hash = hasher.hexdigest()
 
                 video = {
                     'id': id,
-                    'path': os.path.join(video_directory, video_file),
-                    'modified': os.path.getmtime(os.path.join(video_directory, video_file)),
+                    'path': video_path,
+                    'modified': os.path.getmtime(video_path),
                     'contents_hash': hash
                 }
-
-                r.hset(id, mapping=video)
+            # if video has modified key and it has not changed, skip the rehash
             else:
                 # TODO: if modified has changed, recalculate the hash
-                if video.get('modified'):
-                    if video['modified'] == os.path.getmtime(os.path.join(video_directory, video_file)):
-                        print("modified date unchanged")
-                    else:
-                        # TODO recalculate that hash and mset/hset i forget which it is
-                        r.hset(id, 'modified', os.path.getmtime(os.path.join(video_directory, video_file)))
-                        print("modified date changed, i'll need to recalculate the hash")
+                if video.get('modified') and video['modified'] == os.path.getmtime(video_path):
+                    print(f"Modified date unchanged for '{video_path}'")
                 else:
-                    print("modified date never set, i'll need to calculate the hash")
-                    r.hset(id, 'modified', os.path.getmtime(os.path.join(video_directory, video_file)))
-                    # TODO calculate hash
+                    hasher = hashlib.sha256()
+                    with open(video_path, 'rb') as f:
+                        buf = f.read()
+                        hasher.update(buf)
+                    hash = hasher.hexdigest()
 
-            
-            continue
+                    video['modified'] = os.path.getmtime(video_path)
+                    video['contents_hash'] = hash
 
+            # save the video to redis
+            r.hset(id, mapping=video)
 
+            # generate gif if it doesn't exist for this hash
+            cache_dir = get_cache_dir(video_directory)
+            gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
+            if not os.path.exists(gif_output_path):
+                generate_preview(video_path=video_path, gif_output_path=gif_output_path)
 
+        # for video_file in video_files:
+        #     videos.append(Video(parent_directory=video_directory, relative_path=video_file))
 
+        # for video in videos:
+        #     try:
+        #         generate_preview(os.path.join(video.parent_directory, video.relative_path))
+        #     except ValueError as e:
+        #         print(f"Error generating preview for {video.relative_path}: {e}")
+        #     except FileNotFoundError as e:
+        #         print(f"Error generating preview for {video.relative_path}: {e}")
 
-
-
+        # table_data = [[video.id, video.hash, os.path.join(video.parent_directory, video.relative_path)] for video in videos]
         
-        for video_file in video_files:
-            videos.append(Video(parent_directory=video_directory, relative_path=video_file))
-
-        for video in videos:
-            try:
-                generate_preview(os.path.join(video.parent_directory, video.relative_path))
-            except ValueError as e:
-                print(f"Error generating preview for {video.relative_path}: {e}")
-            except FileNotFoundError as e:
-                print(f"Error generating preview for {video.relative_path}: {e}")
-
-        table_data = [[video.id, video.hash, os.path.join(video.parent_directory, video.relative_path)] for video in videos]
-        
-        headers = ["ID", "Hash", "Path"]
+        # headers = ["ID", "Hash", "Path"]
 
         # print(tabulate(table_data, headers=headers, tablefmt='pretty'))
     except FileNotFoundError as e:
