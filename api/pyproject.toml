@@ -13,6 +13,7 @@ redis = "^5.1.1"
 
 [tool.poetry.scripts]
 scan = "scripts.scan:start"
+api = "scripts.api:start"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"

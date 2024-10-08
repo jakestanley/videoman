@@ -65,8 +65,14 @@ def process_video_file(video_file):
         if id is None:
             id = str(uuid.uuid4())
             print(f"Creating: '{id}'", end=' ')
+
+            # add uuids to a set so we can query them efficiently later
+            r.sadd('uuids', id)
+
             r.set(file_path_hash, id)
         else:
+            # add them again because i don't want to redo all the data. TODO: remove this later
+            r.sadd('uuids', id)
             print(f"Exists: '{id}'", end=' ')
 
         video = r.hgetall(id)

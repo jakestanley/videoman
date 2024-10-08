@@ -11,13 +11,21 @@
             "program": "api/api/app.py",
             "args": ["-v", "/Users/jake/Movies/Test/"]
         }, {
-            "name": "Debug: Scan",
+            "name": "Debug: Scan (Windows)",
             "type": "debugpy",
             "request": "launch",
             "python": "${command:python.interpreterPath}",
-            "program": "${workspaceFolder}/api/.venv/bin/scan",
+            "program": "${workspaceFolder}/api/.venv/Scripts/scan",
             "cwd": "${workspaceFolder}/api",
-            "args": ["-v", "/Users/jake/Movies/Test3/"]
+            "args": ["-v", "D:/Videos"]
+        }, {
+            "name": "Debug: API (Windows)",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceFolder}/api/.venv/Scripts/api",
+            "cwd": "${workspaceFolder}/api",
+            "args": ["-v", "D:/Videos"]
         }
     ]
 }
