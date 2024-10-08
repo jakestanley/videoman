@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 
 from api.args import get_args
 from api.cache import get_cache_dir
+from api.files import get_videos as fget_videos
 
 
 
@@ -18,10 +19,11 @@ def home():
 @app.route("/videos", methods=['GET'])
 def get_videos():
 
+    videos = fget_videos()
     # TODO serve static content
     # videos = [video.dictify() for video in list_videos()]
     # return jsonify(videos)
-    return jsonify({"message": "OK"})
+    return jsonify(videos)
 
 def start():
     app.run(debug=False)

@@ -46,8 +46,25 @@ class Video:
 def hash_file_path(file_path):
     return hashlib.sha256(file_path.encode('utf-8')).hexdigest()
 
-def load_files():
-    pass
+def get_videos():
+    video_directory = get_args().video_directory
+    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+    all_uuids = r.smembers('uuids')
+    all_objects = []
+    for uuid in all_uuids:
+        # Assuming each object is stored in a hash with key pattern 'uuid:<uuid>'
+        obj = r.hgetall(uuid)  # Fetch the hash for the given UUID
+        safe_obj = {}
+        if obj == {}:
+            print(f"Could not find object for ID '{uuid}'")
+            continue
+        safe_obj['id'] = obj['id']
+        safe_obj['contents_hash'] = obj['contents_hash']
+
+        all_objects.append(safe_obj)
+
+    return all_objects
 
 def process_video_file(video_file):
     video_directory = get_args().video_directory
@@ -91,6 +108,7 @@ def process_video_file(video_file):
                 r.srem('uuids', id)
                 return
 
+            # TODO: path should be relpath
             video = {
                 'id': id,
                 'path': video_path,
