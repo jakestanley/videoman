@@ -2,6 +2,10 @@
 
 i have all these random clips and videos on my server i need to sort
 
+## db
+
+redis
+
 ## api
 
 some python flask thing
