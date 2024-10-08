@@ -83,6 +83,7 @@ def list_videos():
 
             id = r.get(file_path_hash)
             if id is None:
+                print(f"creating record for '{video_path}'")
                 id = str(uuid.uuid4())
                 r.set(file_path_hash, id)
 
