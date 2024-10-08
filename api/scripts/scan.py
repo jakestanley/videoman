@@ -9,7 +9,7 @@ def start():
 
     args = get_args()
     start_redis_server()
-    videos = list_videos()
+    list_videos()
     stop_redis_server()
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import subprocess
 import os
 import shutil
+import platform
 
 def get_video_length_in_seconds(video_path):
     result = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -11,9 +12,12 @@ def generate_frame_at(video_path, frames_dir, seconds, index):
     width = 320
     # height = -1
     height = 240
+    drawtext=f"drawtext=text='{index}':"
+    if platform.system().lower() == 'windows':
+        drawtext=f"drawtext=fontfile='C\\:/Windows/Fonts/arial.ttf':text='{index}':"
     filters = (
         f"scale={width}:{height}:force_original_aspect_ratio=decrease,pad=320:240:(ow-iw)/2:(oh-ih)/2,"
-        f"drawtext=text='{index}':"
+        f"{drawtext}"
         "fontcolor=white:fontsize=24:"
         "x=20:y=20:"
         "box=1:boxcolor=black@0.5:boxborderw=10"

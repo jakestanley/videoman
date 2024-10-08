@@ -52,8 +52,8 @@ def load_files():
 def process_video_file(video_file):
     video_directory = get_args().video_directory
 
-    print(f"Processing video '{video_file}")
-    r = redis.Redis(host='localhost', port=6379, db=0)
+    print(f"Processing '{video_file}",end=' ')
+    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
     try:
         id = None
@@ -63,9 +63,11 @@ def process_video_file(video_file):
 
         id = r.get(file_path_hash)
         if id is None:
-            print(f"creating record for '{video_path}'")
             id = str(uuid.uuid4())
+            print(f"Creating: '{id}'", end=' ')
             r.set(file_path_hash, id)
+        else:
+            print(f"Exists: '{id}'", end=' ')
 
         video = r.hgetall(id)
 
@@ -87,9 +89,10 @@ def process_video_file(video_file):
         # if video has modified key and it has not changed, skip the rehash
         else:
             # TODO: if modified has changed, recalculate the hash
-            if video.get('modified') and video['modified'] == os.path.getmtime(video_path):
-                print(f"Modified date unchanged for '{video_path}'")
+            if video.get('modified') and video['modified'] == f"{os.path.getmtime(video_path)}":
+                print(f"Modified: No", end=' ')
             else:
+                print(f"Modified: Yes", end=' ')
                 hasher = hashlib.sha256()
                 with open(video_path, 'rb') as f:
                     buf = f.read()
@@ -106,17 +109,20 @@ def process_video_file(video_file):
         cache_dir = get_cache_dir(video_directory)
         gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
         if not os.path.exists(gif_output_path):
+            print(f"GIF: Generating")
             try:
                 generate_preview(video_path=video_path, gif_output_path=gif_output_path)
             except ValueError as e:
                 print(f"Error generating preview for {video_path}: {e}")
+        else:
+            print(f"GIF: Exists")
 
     except FileNotFoundError as e:
         print(f"Failed to process {video_file}")
     except NotADirectoryError:
         print(f"The path '{video_directory}' is not a directory.")
 
-def list_video_files():
+def list_videos():
     video_directory = get_args().video_directory
     video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
 
@@ -127,35 +133,6 @@ def list_video_files():
                 continue
             if os.path.splitext(file)[1].lower() in video_extensions:
                 process_video_file(os.path.relpath(os.path.join(dirpath, file), video_directory))
-
-def list_videos():
-    video_directory = get_args().video_directory
-    videos = []
-
-    list_video_files()
-    # List all files in the directory
-
-    
-
-        # for video_file in video_files:
-        #     videos.append(Video(parent_directory=video_directory, relative_path=video_file))
-
-        # for video in videos:
-        #     try:
-        #         generate_preview(os.path.join(video.parent_directory, video.relative_path))
-        #     except ValueError as e:
-        #         print(f"Error generating preview for {video.relative_path}: {e}")
-        #     except FileNotFoundError as e:
-        #         print(f"Error generating preview for {video.relative_path}: {e}")
-
-        # table_data = [[video.id, video.hash, os.path.join(video.parent_directory, video.relative_path)] for video in videos]
-        
-        # headers = ["ID", "Hash", "Path"]
-
-        # print(tabulate(table_data, headers=headers, tablefmt='pretty'))
-
-
-    return videos
 
 if __name__ == '__main__':
     list_videos('/Users/jake/Movies/BATW2/')
