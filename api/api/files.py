@@ -81,10 +81,15 @@ def process_video_file(video_file):
         if video == {}:
 
             hasher = hashlib.sha256()
-            with open(video_path, 'rb') as f:
-                buf = f.read()
-                hasher.update(buf)
-            hash = hasher.hexdigest()
+            try:
+                with open(video_path, 'rb') as f:
+                    buf = f.read()
+                    hasher.update(buf)
+                hash = hasher.hexdigest()
+            except MemoryError as e:
+                print(f"MemoryError encountered when hashing {video_path}")
+                r.srem('uuids', id)
+                return
 
             video = {
                 'id': id,
@@ -115,11 +120,12 @@ def process_video_file(video_file):
         cache_dir = get_cache_dir(video_directory)
         gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
         if not os.path.exists(gif_output_path):
-            print(f"GIF: Generating")
+            print(f"GIF: Generating", end=' ')
             try:
                 generate_preview(video_path=video_path, gif_output_path=gif_output_path)
+                print(f" (OK)")
             except ValueError as e:
-                print(f"Error generating preview for {video_path}: {e}")
+                print(f" (Error)")
         else:
             print(f"GIF: Exists")
 
