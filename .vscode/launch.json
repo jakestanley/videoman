@@ -5,10 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug: API",
+            "name": "Debug: API (Mac)",
             "type": "debugpy",
             "request": "launch",
-            "program": "api/api/app.py",
+            "program": "${workspaceFolder}/api/.venv/bin/api",
+            "args": ["-v", "/Users/jake/Movies/Test/"]
+        }, {
+            "name": "Debug: Scan (Mac)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/api/.venv/bin/scan",
             "args": ["-v", "/Users/jake/Movies/Test/"]
         }, {
             "name": "Debug: Scan (Windows)",

@@ -65,7 +65,7 @@ def generate_preview(video_path, gif_output_path=None):
     intervals = int(video_length_in_seconds // interval_length) + 1
     frames_dir = os.path.splitext(video_path)[0] + "-frames"
     if gif_output_path is None:
-        gif_output_path = os.path.splitext(video_path)[0] + ".gif"
+        gif_output_path = os.path.splitext(video_path)[0] + ".webm"
     
     generate_frames(video_path, interval_length, intervals, frames_dir)
     generate_gif(frames_dir, gif_output_path)

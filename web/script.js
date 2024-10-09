@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', loadVideos);
 
 async function loadVideos() {
-  const response = await fetch('/videos');
+  const response = await fetch('http://localhost:5000/videos');
   const videos = await response.json();
 
   const videoGrid = document.getElementById('videoGrid');
@@ -9,10 +9,8 @@ async function loadVideos() {
     const videoItem = document.createElement('div');
     videoItem.classList.add('video-item');
     videoItem.innerHTML = `
-      <video class="video-thumbnail" autoplay loop muted src="${video.thumbnailUrl}" data-video-id="${video.id}"></video>
-      <div class="tag-container">
-        ${video.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-      </div>
+      <video class="video-thumbnail" autoplay loop muted src="http://localhost:5000/assets/${video.contents_hash}.webm" data-video-id="${video.id}"></video>
+      
       <div class="buttons">
         <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
         <button class="btn btn-tag" onclick="openTagModal('${video.id}')">Tag</button>

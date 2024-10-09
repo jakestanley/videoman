@@ -88,8 +88,6 @@ def process_video_file(video_file):
 
             r.set(file_path_hash, id)
         else:
-            # add them again because i don't want to redo all the data. TODO: remove this later
-            r.sadd('uuids', id)
             print(f"Exists: '{id}'", end=' ')
 
         video = r.hgetall(id)
@@ -136,7 +134,7 @@ def process_video_file(video_file):
 
         # generate gif if it doesn't exist for this hash
         cache_dir = get_cache_dir(video_directory)
-        gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.gif")
+        gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.webm")
         if not os.path.exists(gif_output_path):
             print(f"GIF: Generating", end=' ')
             try:
@@ -157,7 +155,10 @@ def list_videos():
     video_extensions = video_extensions = {'.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm', '.m4v'}
 
     print(f"Scanning '{video_directory}' for video files...")
-    for dirpath, _, files in os.walk(video_directory):
+    exclude_dirs = [".videoman-cache"]
+    for dirpath, dirnames, files in os.walk(video_directory):
+        dirnames[:] = [d for d in dirnames if d not in exclude_dirs]
+
         for file in files:
             if file.startswith('.'):
                 continue
