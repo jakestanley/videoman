@@ -23,7 +23,6 @@ def home():
 def get_videos():
 
     videos = fget_videos()
-    # TODO serve static content
     # videos = [video.dictify() for video in list_videos()]
     # return jsonify(videos)
     return jsonify(videos)

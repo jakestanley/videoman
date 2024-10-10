@@ -40,7 +40,7 @@ class Video:
         return {
             'id': self.id,
             'hash': self.hash,
-            'path': self.relative_path
+            'relative_path': self.relative_path
         }
 
 def hash_file_path(file_path):
@@ -61,22 +61,23 @@ def get_videos():
             continue
         safe_obj['id'] = obj['id']
         safe_obj['contents_hash'] = obj['contents_hash']
+        safe_obj['relative_path'] = obj['relative_path']
 
         all_objects.append(safe_obj)
 
     return all_objects
 
-def process_video_file(video_file):
+def process_video_file(relative_path):
     video_directory = get_args().video_directory
 
-    print(f"Processing '{video_file}",end=' ')
+    print(f"Processing '{relative_path}",end=' ')
     r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
     try:
         id = None
 
-        file_path_hash = hash_file_path(video_file)
-        video_path = os.path.join(video_directory, video_file)
+        full_path = os.path.join(video_directory, relative_path)
+        file_path_hash = hash_file_path(full_path)
 
         id = r.get(file_path_hash)
         if id is None:
@@ -97,36 +98,34 @@ def process_video_file(video_file):
 
             hasher = hashlib.sha256()
             try:
-                with open(video_path, 'rb') as f:
+                with open(full_path, 'rb') as f:
                     buf = f.read()
                     hasher.update(buf)
                 hash = hasher.hexdigest()
             except MemoryError as e:
-                print(f"MemoryError encountered when hashing {video_path}")
+                print(f"MemoryError encountered when hashing {relative_path}")
                 r.srem('uuids', id)
                 return
 
-            # TODO: path should be relpath
             video = {
                 'id': id,
-                'path': video_path,
-                'modified': os.path.getmtime(video_path),
+                'relative_path': relative_path,
+                'modified': os.path.getmtime(full_path),
                 'contents_hash': hash
             }
         # if video has modified key and it has not changed, skip the rehash
         else:
-            # TODO: if modified has changed, recalculate the hash
-            if video.get('modified') and video['modified'] == f"{os.path.getmtime(video_path)}":
+            if video.get('modified') and video['modified'] == f"{os.path.getmtime(full_path)}":
                 print(f"Modified: No", end=' ')
             else:
                 print(f"Modified: Yes", end=' ')
                 hasher = hashlib.sha256()
-                with open(video_path, 'rb') as f:
+                with open(full_path, 'rb') as f:
                     buf = f.read()
                     hasher.update(buf)
                 hash = hasher.hexdigest()
 
-                video['modified'] = os.path.getmtime(video_path)
+                video['modified'] = os.path.getmtime(full_path)
                 video['contents_hash'] = hash
 
         # save the video to redis
@@ -138,7 +137,7 @@ def process_video_file(video_file):
         if not os.path.exists(gif_output_path):
             print(f"GIF: Generating", end=' ')
             try:
-                generate_preview(video_path=video_path, gif_output_path=gif_output_path)
+                generate_preview(video_path=full_path, gif_output_path=gif_output_path)
                 print(f" (OK)")
             except ValueError as e:
                 print(f" (Error)")
@@ -146,7 +145,7 @@ def process_video_file(video_file):
             print(f"GIF: Exists")
 
     except FileNotFoundError as e:
-        print(f"Failed to process {video_file}")
+        print(f"Failed to process {relative_path}")
     except NotADirectoryError:
         print(f"The path '{video_directory}' is not a directory.")
 
@@ -163,7 +162,8 @@ def list_videos():
             if file.startswith('.'):
                 continue
             if os.path.splitext(file)[1].lower() in video_extensions:
-                process_video_file(os.path.relpath(os.path.join(dirpath, file), video_directory))
+                relative_path = os.path.relpath(os.path.join(dirpath, file), video_directory)
+                process_video_file(relative_path)
 
 if __name__ == '__main__':
     list_videos('/Users/jake/Movies/BATW2/')
