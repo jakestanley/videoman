@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import VideoCard from '../components/VideoCard.vue'
 
 export default {
@@ -38,15 +39,23 @@ export default {
     //   ]
     // }
     return {
-      videos: [],
+      videos: []
     }
   },
   created() {
-    this.fetchVideos();
+    this.fetchVideos()
   },
   methods: {
     async fetchVideos() {
-      
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/videos')
+        this.videos = response.data.map((video) => ({
+          ...video,
+          src: `http://localhost:5000/assets/${video.contents_hash}.webm`
+        }));
+      } catch (error) {
+        console.error('Error fetching videos: ', error)
+      }
     }
   }
 }

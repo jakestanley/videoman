@@ -1,9 +1,11 @@
 <template>
   <div class="video-card">
-    <video class="video-element" controls :src="videoSrc"></video>
+    <video class="video-element" autoplay :src="videoSrc"></video>
     <div class="video-text">
       <h3>{{ title }}</h3>
       <p>{{ description }}</p>
+      <p>{{ id }}</p>
+      <p>{{ relative_path }}</p>
     </div>
   </div>
 </template>
@@ -12,13 +14,22 @@
 export default {
   name: 'VideoCard',
   props: {
-    videoSrc: {
-      type: String,
-      required: true
+    id: {
+        type: String,
+        required: true
     },
-    title: {
+    relative_path: {
       type: String,
-      default: 'Untitled Video'
+      required: false,
+      default: 'no path'
+    },
+    contents_hash: {
+      type: String,
+      default: 'no hash'
+    },
+    src: {
+        type: String,
+        required: false
     },
     description: {
       type: String,
