@@ -48,7 +48,8 @@ export default {
   methods: {
     async fetchVideos() {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/videos')
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+        const response = await axios.get(`${apiBaseUrl}/videos`)
         this.videos = response.data.map((video) => ({
           ...video,
           src: `http://localhost:5000/assets/${video.contents_hash}.webm`
