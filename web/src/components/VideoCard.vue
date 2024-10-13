@@ -67,7 +67,7 @@ export default {
       const result = Array.from(
         new Set(
           this.relative_path
-            .replace(/[\[\]]/g, '') // Remove square brackets
+            .replace(/[\[\]\\]/g, '') // Remove square brackets
             .split(/[\/ ]+/) // Split by slashes or spaces
             .map(item => item.replace(fileExtensionRegex, '')) // Remove file extensions if present
             .filter(item => !isoDateRegex.test(item)) // Exclude ISO formatted dates
