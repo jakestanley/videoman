@@ -1,22 +1,23 @@
 <template>
   <div class="video-card">
-    <video class="video-element" autoplay loop :src="videoUrl"></video>
-    <!-- <p>{{ relative_path }}</p> -->
-    <div class="buttons">
-      <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
-      <button class="btn btn-tag" onclick="openTagModal('${video.id}')">Tag</button>
-    </div>
+    <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
+    <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
     <div class="tags">
-      <p>Tags</p>
+      <h1>Tags</h1>
       <ul>
         <li v-for="(item, index) in tags" :key="index">
-          {{ item }}
+          {{ item }} <button class="btn btn-delete-tag">Delete</button>
         </li>
       </ul>
-      <p>Suggested tags</p>
+      
+      <div class="input-section">
+        <input type="text" v-model="tagText" @keyup.enter="submitText" placeholder="Create a tag"/>
+      </div>
+
+      <h1>Suggested tags</h1>
       <ul>
         <li v-for="(item, index) in suggestedTags" :key="index">
-          {{ item }}
+          <a href="#" @click="tagVideo(item)">{{ item.tag }}</a>
         </li>
       </ul>
     </div>
@@ -46,6 +47,11 @@ export default {
       default: ["tag"]
     }
   },
+  data() {
+    return {
+      tagText: '', // Holds the value of the text input
+    };
+  },
   computed: {
     videoUrl() {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -70,7 +76,20 @@ export default {
         )
       ).filter(item => !this.tags.includes(item));
 
-      return result;
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const tags = result.map(item => {
+        return {
+          tag: item,
+          url: apiBaseUrl + "/videos/" + this.id + "/tag/" + item
+        };
+      });
+
+      return tags;
+    }
+  },
+  methods: {
+    tagVideo(item) {
+      console.log('Item clicked', item);
     }
   }
 }
@@ -82,10 +101,25 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fff;
+  max-width: 300px; /* Set your desired max width */
+  width: 100%;      /* Ensures the card fills its container */
+}
+
+h1 {
+  font-size: medium;
+  font-weight: bold;
+  color: black;
 }
 
 p, li {
   color: black;
+}
+ul {
+  list-style: none;
+  list-style-type: none;
+}
+li {
+  list-style: none;
 }
 
 .video-element {
