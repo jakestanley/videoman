@@ -5,9 +5,9 @@
       <VideoCard
         v-for="(video, index) in videos"
         :key="index"
-        :video-src="video.src"
-        :title="video.title"
-        :description="video.description"
+        :contents_hash="video.contents_hash"
+        :id="video.id"
+        :relative_path="video.relative_path"
       />
     </div>
   </div>
@@ -23,21 +23,6 @@ export default {
     VideoCard
   },
   data() {
-    // return {
-    //   videos: [
-    //     {
-    //       src: 'videos/video1.mp4',
-    //       title: 'Introduction to Vue.js',
-    //       description: 'Learn the basics of Vue.js in this introductory video.'
-    //     },
-    //     {
-    //       src: 'videos/video2.mp4',
-    //       title: 'Advanced Vue Techniques',
-    //       description: 'Delve deeper into Vue.js with advanced concepts.'
-    //     }
-    //     // Add more video objects as needed
-    //   ]
-    // }
     return {
       videos: []
     }

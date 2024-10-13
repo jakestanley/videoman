@@ -1,11 +1,24 @@
 <template>
   <div class="video-card">
-    <video class="video-element" autoplay :src="videoSrc"></video>
-    <div class="video-text">
-      <h3>{{ title }}</h3>
-      <p>{{ description }}</p>
-      <p>{{ id }}</p>
-      <p>{{ relative_path }}</p>
+    <video class="video-element" autoplay loop :src="videoUrl"></video>
+    <!-- <p>{{ relative_path }}</p> -->
+    <div class="buttons">
+      <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
+      <button class="btn btn-tag" onclick="openTagModal('${video.id}')">Tag</button>
+    </div>
+    <div class="tags">
+      <p>Tags</p>
+      <ul>
+        <li v-for="(item, index) in tags" :key="index">
+          {{ item }}
+        </li>
+      </ul>
+      <p>Suggested tags</p>
+      <ul>
+        <li v-for="(item, index) in suggestedTags" :key="index">
+          {{ item }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -27,13 +40,37 @@ export default {
       type: String,
       default: 'no hash'
     },
-    src: {
-        type: String,
-        required: false
+    tags: {
+      type: Array,
+      required: false,
+      default: ["tag"]
+    }
+  },
+  computed: {
+    videoUrl() {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      return `${apiBaseUrl}/assets/${this.contents_hash}.webm`
     },
-    description: {
-      type: String,
-      default: 'No description available.'
+    suggestedTags() {
+
+      const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/; // Regex to match ISO formatted dates
+      const isoTimeRegex = /^\d{2}_\d{2}$/; // Regex to match ISO formatted dates
+      const fileExtensionRegex = /\.[^\/.]+$/; // Regex to match a file extension
+      const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/; // Regex to match UUIDs
+
+      const result = Array.from(
+        new Set(
+          this.relative_path
+            .replace(/[\[\]]/g, '') // Remove square brackets
+            .split(/[\/ ]+/) // Split by slashes or spaces
+            .map(item => item.replace(fileExtensionRegex, '')) // Remove file extensions if present
+            .filter(item => !isoDateRegex.test(item)) // Exclude ISO formatted dates
+            .filter(item => !isoTimeRegex.test(item)) // Exclude ISO formatted times
+            .filter(item => !uuidRegex.test(item)) // Exclude UUIDs)
+        )
+      ).filter(item => !this.tags.includes(item));
+
+      return result;
     }
   }
 }
@@ -45,6 +82,10 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fff;
+}
+
+p, li {
+  color: black;
 }
 
 .video-element {
