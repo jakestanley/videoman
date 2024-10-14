@@ -6,7 +6,7 @@
         <a href="#" @click.prevent=filterClear()>Clear</a>
       </p>
       <li v-for="(item, index) in tags" :key="index">
-        <a href="#" @click.prevent=filterVideos(item)>{{ item }}</a>
+        <a href="#" @click.prevent=filterVideos(item.tag)>{{ item.tag }} ({{item.resource_count}})</a>
       </li>
     </ul>
   </div>
@@ -32,7 +32,12 @@ export default {
         const response = await axios.get(`${apiBaseUrl}/tags`)
         this.tags = response.data;
       } catch (error) {
-        this.tags = ["Could", "Not", "Obtain", "Tags"]
+        this.tags = [
+          { "tag": "Could", "resource_count": 1 },
+          { "tag": "Not", "resource_count": 2 },
+          { "tag": "Get", "resource_count": 3 },
+          { "tag": "Counts", "resource_count": 4 }
+        ]
       }
     },
     async filterVideos(tag) {
