@@ -86,6 +86,9 @@ def get_videos_by_ids(ids):
             continue
 
         videos.append(video)
+
+    # default sort
+    videos.sort(key=lambda x: x['created'], reverse=True)
     return videos
 
 def process_video_file(relative_path):
