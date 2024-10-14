@@ -1,6 +1,8 @@
 <template>
   <div class="videos">
     <h1>Videoman</h1>
+    <button class="btn" @click="previousPage()">Previous page</button>
+    <button class="btn" @click="nextPage()">Next page</button>
     <div class="video-grid">
       <VideoCard
         v-for="(video, index) in videos"
@@ -26,25 +28,64 @@ export default {
   },
   data() {
     return {
-      videos: []
+      videos: [],
+      tag: "",
+      page: 0
     }
   },
   created() {
     this.fetchVideos()
   },
-  watch: {
+  watch: { // TODO how can i load this on mount?
     '$route.query.tag': {
       immediate: true,
       handler(newTag, oldTag) {
+        this.tag = newTag;
         this.fetchVideosByTag(newTag);
       },
     },
+    '$route.query.page': {
+      immediate: true,
+      handler(newPage, oldPage) {
+        if (newPage != oldPage) {
+          this.fetchVideos()
+          console.log("will fetch page " + newPage)
+        }
+      }
+    }
   },
   methods: {
+    async nextPage() {
+      this.page++
+      const page = this.page;
+      this.$router.push({
+        query: {
+          ...this.$route.query, // Keep the existing query parameters
+          page // Add or update the new parameter
+        },
+      });
+    },
+    async previousPage() {
+      this.page--
+      if (this.page < 0) {
+        this.page = 0;
+      }
+      const page = this.page;
+      this.$router.push({
+        query: {
+          ...this.$route.query, // Keep the existing query parameters
+          page // Add or update the new parameter
+        },
+      });
+    },
     async fetchVideos() {
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-        const response = await axios.get(`${apiBaseUrl}/videos`)
+        const response = await axios.get(`${apiBaseUrl}/videos`, {
+          params: {
+            page: this.page
+          }
+        })
         this.videos = response.data.map((video) => ({
           ...video,
           src: `${apiBaseUrl}/assets/${video.contents_hash}.webm`
