@@ -76,7 +76,7 @@ export default {
             .filter(item => !isoTimeRegex.test(item)) // Exclude ISO formatted times
             .filter(item => !uuidRegex.test(item)) // Exclude UUIDs)
         )
-      ).filter(item => !this.tags.includes(item));
+      ).filter(item => !this.tags.includes(item.toLowerCase()));
 
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
       const tags = result.map(item => {
