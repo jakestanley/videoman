@@ -2,6 +2,7 @@
   <div class="video-card">
     <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
     <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
+    <p>{{ formattedDate }}</p>
     <div class="tags">
       <h1>Tags</h1>
       <ul>
@@ -33,8 +34,12 @@ export default {
   name: 'VideoCard',
   props: {
     id: {
-        type: String,
-        required: true
+      type: String,
+      required: true
+    },
+    created_date: {
+      type: String,
+      required: false
     },
     relative_path: {
       type: String,
@@ -63,6 +68,11 @@ export default {
     };
   },
   computed: {
+    formattedDate() {
+      const date = new Date(parseFloat(this.created_date) * 1000);
+      const formattedDate = date.toISOString().split('T')[0];
+      return formattedDate;
+    },
     videoUrl() {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
       return `${apiBaseUrl}/assets/${this.contents_hash}.webm`

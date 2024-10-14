@@ -9,6 +9,7 @@
         :id="video.id"
         :relative_path="video.relative_path"
         :tags="video.tags"
+        :created_date="video.created"
       />
     </div>
   </div>
