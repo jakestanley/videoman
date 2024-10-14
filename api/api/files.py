@@ -66,17 +66,8 @@ def get_videos():
     r = get_redis_client()
 
     all_uuids = r.smembers('uuids')
-    all_videos = []
 
-    for uuid in all_uuids:
-        # Assuming each object is stored in a hash with key pattern 'uuid:<uuid>'
-        video = get_video_by_id(uuid)
-        if video == {}:
-            continue
-
-        all_videos.append(video)
-
-    return all_videos
+    return get_videos_by_ids(all_uuids)
 
 def get_videos_by_ids(ids):
     videos = []
@@ -87,7 +78,7 @@ def get_videos_by_ids(ids):
 
         videos.append(video)
 
-    # default sort
+    # default sort. sorting should be done elsewhere
     videos.sort(key=lambda x: x['created'], reverse=True)
     return videos
 

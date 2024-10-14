@@ -14,15 +14,23 @@ args = get_args()
 app = Flask(__name__, static_folder=get_cache_dir(args.video_directory), static_url_path="/assets")
 CORS(app, origins=["http://localhost:5000", "http://localhost:8080", "http://localhost:5173"])
 
+def paginate_items(items, page, page_size=20):
+    start = page * page_size
+    end = start + page_size
+    return items[start:end]
+
 @app.route("/")
 def home():
     return jsonify({"message": "UP"})
 # TODO move these into a routes or web package?
 @app.route("/videos", methods=['GET'])
 def get_videos():
+    page = request.args.get('page', 0, type=int)
 
     videos = fget_videos()
-    return jsonify(videos[:20])
+    paged = paginate_items(videos, page, page_size=20)
+
+    return jsonify(paged)
 
 @app.route("/tags/<tag>/videos", methods=['GET'])
 def get_videos_by_tag(tag):
