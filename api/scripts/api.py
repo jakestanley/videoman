@@ -32,7 +32,7 @@ def get_videos_by_tag(tag):
     else:
         ids = tags.get_resources_by_tag(tag)
     videos = get_videos_by_ids(ids)
-    return jsonify(videos)
+    return jsonify(videos[:20]) # TODO ensure ordering for future pages
 
 @app.route("/tags", methods=['GET'])
 def get_tags():
