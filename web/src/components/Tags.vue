@@ -1,7 +1,8 @@
 <template>
   <div>
     <h1 class="green">Tags</h1>
-    <button @click.prevent=sortTags()>Sort alphabetically</button>
+    <button @click.prevent=sortTagsAlphabetically()>Sort by name</button>
+    <button @click.prevent=sortTagsCount()>Sort by count</button>
     <input type="text" v-model="filterText" @keyup.enter="filterTags" placeholder="Filter tags"/>
     <ul>
       <p>
@@ -51,15 +52,17 @@ export default {
         .then(tags => this.tags = tags);
     },
     async filterVideos(tag) {
-      console.log("filtering on " + tag)
       this.$router.push({ query: { tag } });
     },
     async filterClear() {
       this.$router.push({ query: {} });
     },
-    async sortTags() {
+    async sortTagsAlphabetically() {
       console.log("sorting tags")
       this.tags.sort((a, b) => a.tag.localeCompare(b.tag));
+    },
+    async sortTagsCount() {
+      this.tags.sort((a, b) => a.resource_count < b.resource_count);
     },
     async filterTags() {
       console.log("filtering tags on " + this.filterText)

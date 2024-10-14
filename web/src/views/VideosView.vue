@@ -48,7 +48,7 @@ export default {
       immediate: true,
       handler(newPage, oldPage) {
         if (newPage != oldPage) {
-          this.fetchVideos()
+          this.fetchVideosByTag(this.tag)
           console.log("will fetch page " + newPage)
         }
       }
@@ -95,13 +95,18 @@ export default {
       }
     },
     async fetchVideosByTag(tag) {
+      // TODO use this.tag so we can reuse fetchVideos
       if (tag == undefined) {
         this.fetchVideos()
         return
       }
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-        const response = await axios.get(`${apiBaseUrl}/tags/${tag}/videos`)
+        const response = await axios.get(`${apiBaseUrl}/tags/${tag}/videos`, {
+          params: {
+            page: this.page
+          }
+        })
         this.videos = response.data.map((video) => ({
           ...video,
           src: `${apiBaseUrl}/assets/${video.contents_hash}.webm`
