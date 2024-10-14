@@ -54,6 +54,7 @@ def get_video_by_id(uuid):
     safe_obj['id'] = obj['id']
     safe_obj['contents_hash'] = obj['contents_hash']
     safe_obj['relative_path'] = obj['relative_path']
+    safe_obj['created'] = obj['created']
     safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
 
     return safe_obj
@@ -130,11 +131,15 @@ def process_video_file(relative_path):
             video = {
                 'id': id,
                 'relative_path': relative_path,
+                'created': os.path.getctime(full_path),
                 'modified': os.path.getmtime(full_path),
                 'contents_hash': hash
             }
-        # if video has modified key and it has not changed, skip the rehash
         else:
+            # set created date if it does not exist
+            if not video.get('created'):
+                video['created'] = os.path.getctime(full_path)
+            # if video has modified key and it has not changed, skip the rehash
             if video.get('modified') and video['modified'] == f"{os.path.getmtime(full_path)}":
                 print(f"Modified: No", end=' ')
             else:

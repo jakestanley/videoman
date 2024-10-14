@@ -17,7 +17,6 @@ export const useTagStore = defineStore('tags', {
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
                 const response = await axios.get(`${apiBaseUrl}/tags`)
                 const tags = response.data;
-                console.log("fetched tags: " + tags);
                 this.tags = tags;
                 return tags;
             } catch (error) {
