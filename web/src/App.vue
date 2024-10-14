@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView } from 'vue-router'
+import Tags from './components/Tags.vue'
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/videos">Videos</RouterLink>
-      </nav>
-    </div>
+    <!-- TODO: make this text at the top, not to the left. stupid vue defaults -->
+    <!-- <h1>Videoman</h1> -->
+    <Tags/>
+    <div class="wrapper"/>
   </header>
 
   <RouterView />

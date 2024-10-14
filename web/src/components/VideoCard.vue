@@ -11,7 +11,7 @@
       </ul>
       
       <div class="input-section">
-        <input type="text" v-model="tagText" @keyup.enter="submitText" placeholder="Create a tag"/>
+        <input type="text" v-model="tagText" @keyup.enter="submitTag" placeholder="Create a tag"/>
       </div>
 
       <h1>Suggested tags</h1>
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'VideoCard',
   props: {
@@ -80,7 +82,7 @@ export default {
       const tags = result.map(item => {
         return {
           tag: item,
-          url: apiBaseUrl + "/videos/" + this.id + "/tag/" + item
+          url: apiBaseUrl + "/videos/" + this.id + "/tags/" + item
         };
       });
 
@@ -88,7 +90,14 @@ export default {
     }
   },
   methods: {
+    submitTag() {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const url = apiBaseUrl + "/videos/" + this.id + "/tags/" + this.tagText
+      axios.post(url)
+      console.log("Submitted tag", this.tagText)
+    },
     tagVideo(item) {
+      axios.post(item.url)
       console.log('Item clicked', item);
     }
   }

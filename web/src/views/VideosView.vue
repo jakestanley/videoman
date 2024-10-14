@@ -1,6 +1,6 @@
 <template>
   <div class="videos">
-    <h1>This the videos page</h1>
+    <h1>Videoman</h1>
     <div class="video-grid">
       <VideoCard
         v-for="(video, index) in videos"
@@ -8,6 +8,7 @@
         :contents_hash="video.contents_hash"
         :id="video.id"
         :relative_path="video.relative_path"
+        :tags="video.tags"
       />
     </div>
   </div>
@@ -30,6 +31,14 @@ export default {
   created() {
     this.fetchVideos()
   },
+  watch: {
+    '$route.query.tag': {
+      immediate: true,
+      handler(newTag, oldTag) {
+        this.fetchVideosByTag(newTag);
+      },
+    },
+  },
   methods: {
     async fetchVideos() {
       try {
@@ -37,7 +46,23 @@ export default {
         const response = await axios.get(`${apiBaseUrl}/videos`)
         this.videos = response.data.map((video) => ({
           ...video,
-          src: `http://localhost:5000/assets/${video.contents_hash}.webm`
+          src: `${apiBaseUrl}/assets/${video.contents_hash}.webm`
+        }));
+      } catch (error) {
+        console.error('Error fetching videos: ', error)
+      }
+    },
+    async fetchVideosByTag(tag) {
+      if (tag == undefined) {
+        this.fetchVideos()
+        return
+      }
+      try {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+        const response = await axios.get(`${apiBaseUrl}/tags/${tag}/videos`)
+        this.videos = response.data.map((video) => ({
+          ...video,
+          src: `${apiBaseUrl}/assets/${video.contents_hash}.webm`
         }));
       } catch (error) {
         console.error('Error fetching videos: ', error)
