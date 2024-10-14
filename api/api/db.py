@@ -35,3 +35,7 @@ def stop_redis_server():
         print("Redis server stopped.")
     except redis.exceptions.ConnectionError as e:
         print("Redis server already stopped or not running:", e)
+
+def get_redis_client():
+    # TODO ensure we're getting the right redis ofc
+    return redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)

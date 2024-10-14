@@ -9,6 +9,8 @@ import json
 from api.args import get_args
 from api.preview import generate_preview
 from api.cache import get_cache_dir
+from api.tags import get_tags_by_resource
+from api.db import get_redis_client
 
 # TODO: scanner worker/background task
 # TODO: if the user deletes a video and the video at that path does not match 
@@ -43,35 +45,53 @@ class Video:
             'relative_path': self.relative_path
         }
 
+def get_video_by_id(uuid):
+    r = get_redis_client()
+    obj = r.hgetall(uuid)  # Fetch the hash for the given UUID
+    safe_obj = {}
+    if obj == {}:
+        return {}
+    safe_obj['id'] = obj['id']
+    safe_obj['contents_hash'] = obj['contents_hash']
+    safe_obj['relative_path'] = obj['relative_path']
+    safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
+
+    return safe_obj
+
 def hash_file_path(file_path):
     return hashlib.sha256(file_path.encode('utf-8')).hexdigest()
 
 def get_videos():
-    video_directory = get_args().video_directory
-    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    r = get_redis_client()
 
     all_uuids = r.smembers('uuids')
-    all_objects = []
+    all_videos = []
+
     for uuid in all_uuids:
         # Assuming each object is stored in a hash with key pattern 'uuid:<uuid>'
-        obj = r.hgetall(uuid)  # Fetch the hash for the given UUID
-        safe_obj = {}
-        if obj == {}:
-            print(f"Could not find object for ID '{uuid}'")
+        video = get_video_by_id(uuid)
+        if video == {}:
             continue
-        safe_obj['id'] = obj['id']
-        safe_obj['contents_hash'] = obj['contents_hash']
-        safe_obj['relative_path'] = obj['relative_path']
 
-        all_objects.append(safe_obj)
+        all_videos.append(video)
 
-    return all_objects
+    return all_videos
+
+def get_videos_by_ids(ids):
+    videos = []
+    for id in ids:
+        video = get_video_by_id(id)
+        if video == {}:
+            continue
+
+        videos.append(video)
+    return videos
 
 def process_video_file(relative_path):
     video_directory = get_args().video_directory
 
     print(f"Processing '{relative_path}",end=' ')
-    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    r = get_redis_client()
 
     try:
         id = None
