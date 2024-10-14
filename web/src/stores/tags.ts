@@ -4,6 +4,7 @@ import axios from 'axios';
 export const useTagStore = defineStore('tags', {
     state: () => ({
         createdTag: null,
+        tags: [] as any[]
     }),
     actions: {
         createTag(tag) {
@@ -17,6 +18,7 @@ export const useTagStore = defineStore('tags', {
                 const response = await axios.get(`${apiBaseUrl}/tags`)
                 const tags = response.data;
                 console.log("fetched tags: " + tags);
+                this.tags = tags;
                 return tags;
             } catch (error) {
                 return [

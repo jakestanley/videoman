@@ -1,6 +1,8 @@
 <template>
-  <div class="greetings">
+  <div>
     <h1 class="green">Tags</h1>
+    <button @click.prevent=sortTags()>Sort alphabetically</button>
+    <input type="text" v-model="filterText" @keyup.enter="filterTags" placeholder="Filter tags"/>
     <ul>
       <p>
         <a href="#" @click.prevent=filterClear()>Clear</a>
@@ -14,7 +16,6 @@
 
 <script>
 import { useTagStore } from '@/stores/tags';
-import { watch } from 'vue';
 
 export default {
   name: 'Tags',
@@ -37,9 +38,12 @@ export default {
   },
   data() {
     return {
-      tags: []
+      tags: [],
+      filterText: ""
     }
   },
+  // TODO: pin video for when comparing with other tags
+  // TODO: fuzzy search existing and present on suggested tags
   methods: {
     async fetchTags() {
       this.tagStore
@@ -52,6 +56,16 @@ export default {
     },
     async filterClear() {
       this.$router.push({ query: {} });
+    },
+    async sortTags() {
+      console.log("sorting tags")
+      this.tags.sort((a, b) => a.tag.localeCompare(b.tag));
+    },
+    async filterTags() {
+      console.log("filtering tags on " + this.filterText)
+      this.tagStore.fetchTags().then(tags => {
+        this.tags = tags.filter(item => item.tag.includes(this.filterText));
+      })
     }
   }
 }
