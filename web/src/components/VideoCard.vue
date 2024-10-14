@@ -14,10 +14,11 @@
         <input type="text" v-model="tagText" @keyup.enter="submitTag" placeholder="Create a tag"/>
       </div>
 
+      <!-- TODO: if a suggested tag is in the list of available tags (use tag store) then highlight it -->
       <h1>Suggested tags</h1>
       <ul>
         <li v-for="(item, index) in suggestedTags" :key="index">
-          <a href="#" @click="tagVideo(item)">{{ item.tag }}</a>
+          <a href="#" @click.prevent="tagVideo(item)">{{ item.tag }}</a>
         </li>
       </ul>
     </div>
@@ -26,6 +27,7 @@
 
 <script>
 import axios from 'axios';
+import { useTagStore } from '@/stores/tags';
 
 export default {
   name: 'VideoCard',
@@ -48,6 +50,12 @@ export default {
       required: false,
       default: ["tag"]
     }
+  },
+  setup() {
+    const tagStore = useTagStore();
+    return {
+      tagStore,
+    };
   },
   data() {
     return {
@@ -98,6 +106,7 @@ export default {
     },
     tagVideo(item) {
       axios.post(item.url)
+      this.tagStore.createTag(item)
       console.log('Item clicked', item);
     }
   }

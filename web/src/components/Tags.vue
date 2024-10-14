@@ -13,10 +13,25 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { useTagStore } from '@/stores/tags';
+import { watch } from 'vue';
 
 export default {
   name: 'Tags',
+  watch: {
+    'tagStore.createdTag': {
+      handler(newTag) {
+        console.log('Tag created:', newTag);
+        this.fetchTags();
+      },
+      immediate: true,
+    },
+  },
+  computed: {
+    tagStore() {
+      return useTagStore();
+    }
+  },
   created() {
     this.fetchTags()
   },
@@ -27,18 +42,9 @@ export default {
   },
   methods: {
     async fetchTags() {
-      try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-        const response = await axios.get(`${apiBaseUrl}/tags`)
-        this.tags = response.data;
-      } catch (error) {
-        this.tags = [
-          { "tag": "Could", "resource_count": 1 },
-          { "tag": "Not", "resource_count": 2 },
-          { "tag": "Get", "resource_count": 3 },
-          { "tag": "Counts", "resource_count": 4 }
-        ]
-      }
+      this.tagStore
+        .fetchTags()
+        .then(tags => this.tags = tags);
     },
     async filterVideos(tag) {
       console.log("filtering on " + tag)
