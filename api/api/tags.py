@@ -62,12 +62,16 @@ def list_all_tags():
     r = get_redis_client()
     cursor = 0
     tags = []
-    tags.append('untagged')
+    # TODO fix laziness
+    tags.append({'tag': 'untagged', 'resource_count': 999999})
     while True:
         cursor, keys = r.scan(cursor, match='tag:*')
         for key in keys:
             tag = key.split(':', 1)[1]  # Extract the tag name
-            tags.append(tag)
+            resource_count = r.scard(f"tag:{tag}")
+            tags.append({'tag': tag, 'resource_count': resource_count})
         if cursor == 0:
             break
+
+    tags.sort(key=lambda x: x['resource_count'], reverse=True)
     return tags
