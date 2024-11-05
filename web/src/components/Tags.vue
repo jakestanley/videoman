@@ -4,7 +4,7 @@
     <button @click.prevent=sortTagsAlphabetically()>Sort by name</button>
     <button @click.prevent=sortTagsCount()>Sort by count</button>
     <input type="text" v-model="filterText" @keyup.enter="filterTags" placeholder="Filter tags"/>
-    <ul>
+    <ul class="scrollable-list">
       <p>
         <a href="#" @click.prevent=filterClear()>Clear</a>
       </p>
@@ -75,6 +75,13 @@ export default {
 </script>
 
 <style scoped>
+.scrollable-list {
+  max-height: 800px; /* Set your desired max height */
+  overflow-y: auto;  /* Adds a vertical scrollbar if content overflows */
+  padding: 0;
+  margin: 0;
+}
+
 h1 {
   font-weight: 500;
   font-size: 2.6rem;
