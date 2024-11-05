@@ -69,5 +69,6 @@ def assume_tags(video):
         tags.append(f"{ctime_date.year}")
 
     tags.extend(_get_other_tags(video))
+    tags = [tag for tag in tags if tag]
 
     return tags
