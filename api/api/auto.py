@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-date_pattern = r"\b(\d{4}-\d{2}-\d{2})\b"
+date_pattern = r"(\d{4}-?\d{2}-?\d{2})\b"
 
 def _get_ctime_date(video):
     dt_object = datetime.fromtimestamp(float(video['created']))
@@ -16,6 +16,8 @@ def _get_filename_date(video):
 
     match = re.search(date_pattern, filename)
 
+    dt_object = None
+
     if match:
         date_str = match.group(1)
     else:
@@ -23,14 +25,21 @@ def _get_filename_date(video):
 
     try:
         dt_object = datetime.strptime(date_str, '%Y-%m-%d')
-        ftime_date = dt_object.date()
-        return ftime_date
     except ValueError:
-        return None
+        pass
+
+    if dt_object is None:
+        try:
+            dt_object = datetime.strptime(date_str, '%Y%m%d')
+        except ValueError:
+            return None
+
+    ftime_date = dt_object.date()
+    return ftime_date
     
 def _get_other_tags(video):
 
-    pattern = r"\b\d{4}-\d{2}-\d{2}(?:[\s_-](\d{2}[-_:]\d{2}(?:[-_:]\d{2})?))?\b"
+    pattern = r"\b\d{4}-?\d{2}-?\d{2}(?:[\s_-](\d{2}[-_:]\d{2}(?:[-_:]\d{2})?))?\b"
 
     tags = set()
 

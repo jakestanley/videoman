@@ -17,7 +17,8 @@ class TestAuto(unittest.TestCase):
         ['lonelyday/lonelyday_ 2020-03-26 20_54-lonelyday_.mp4', '1709777376.9182405', ['lonelyday', 'lonelyday_', '2020', '2020-03-26']],
         ['_Favourites/Fast Cars/2019-07-29 23-52-49.mkv', '1709772090.3415468', ['Fast', 'Cars', 'Favourites', '2019', '2019-07-29']],
         ['Unsorted/SheSellsSeashells_By-the-Sea-Shore.mp4', '1709771705.9740956', ['SheSellsSeashells_By-the-Sea-Shore', 'Unsorted', '2024', '2024-03-07']],
-        ['MKV/2020-08-09 01-06-57.mkv', '1709770320.9260023', ['MKV', '2020-08-09', '2020']]
+        ['MKV/2020-08-09 01-06-57.mkv', '1709770320.9260023', ['MKV', '2020-08-09', '2020']],
+        ['Offspring/KeepEmSeperated-20230505.mp4', '1709770320.9260023', ['2023', '2023-05-05', 'KeepEmSeperated-', 'Offspring']]
     ])
     def test_assumed_tags_are_reasonable(self, relative_path, created, expected_tags):
         
