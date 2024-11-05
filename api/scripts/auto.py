@@ -45,7 +45,10 @@ def start():
         print("Applying tags")
         for video in videos:
             for tag in video['potential_tags']:
-                add_tag_to_resource(video['id'], tag)
+                try:
+                    add_tag_to_resource(video['id'], tag)
+                except ValueError as e:
+                    print(f"Error adding tag '{tag}' to video '{video['relative_path']}': {e}")
 
     stop_redis_server()
 
