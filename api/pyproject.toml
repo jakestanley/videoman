@@ -15,6 +15,7 @@ flask-cors = "^5.0.0"
 [tool.poetry.scripts]
 scan = "scripts.scan:start"
 api = "scripts.api:start"
+auto = "scripts.auto:start"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
