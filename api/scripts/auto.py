@@ -11,7 +11,7 @@ def start():
     args = get_args()
     start_redis_server()
     untagged = get_resources_without_tags()
-    videos = get_videos_by_ids(untagged[0:10])
+    videos = get_videos_by_ids(untagged)
     for video in videos:
         tags = assume_tags(video)
         print(f"Assumed tags for video %s: %s" % (video["relative_path"], tags))

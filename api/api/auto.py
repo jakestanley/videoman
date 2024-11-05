@@ -18,7 +18,6 @@ def _get_filename_date(video):
 
     if match:
         date_str = match.group(1)
-        print("Found date:", date_str)
     else:
         return None
 
