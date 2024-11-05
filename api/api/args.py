@@ -13,6 +13,7 @@ def _get_common_args_parser():
         type=str, 
         help='The root directory to scan for videos.'
     )
+    return parser
 
 def get_args():
     global _SINGLETON
