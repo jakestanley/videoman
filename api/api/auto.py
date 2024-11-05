@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-date_pattern = r"(\d{4}-?\d{2}-?\d{2})\b"
+date_pattern = r"(\d{4}-?\d{2}-?\d{2})"
 
 def _get_ctime_date(video):
     dt_object = datetime.fromtimestamp(float(video['created']))
