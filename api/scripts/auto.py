@@ -2,15 +2,16 @@
 from collections import Counter
 
 from api.db import start_redis_server, stop_redis_server
-from api.args import get_args
+from api.args import get_auto_args
 from api.tags import get_resources_without_tags
 from api.files import get_videos_by_ids
 from api.auto import assume_tags
+from api.tags import add_tag_to_resource
 
 def start():
-    print("Running auto")
+    print("Running auto on untagged videos")
 
-    args = get_args()
+    args = get_auto_args()
     start_redis_server()
     untagged = get_resources_without_tags()
     videos = get_videos_by_ids(untagged)
@@ -38,6 +39,13 @@ def start():
         potential_tags = video['potential_tags']
         video['potential_tags'] = [tag for tag in potential_tags if tag in unique_tags_occurring_more_than_once]
         print(f"Assumed tags for video %s: %s" % (video["relative_path"], video['potential_tags']))
+
+    # apply tags if such argument is true
+    if args.apply:
+        print("Applying tags")
+        for video in videos:
+            for tag in video['potential_tags']:
+                add_tag_to_resource(video['id'], tag)
 
     stop_redis_server()
 

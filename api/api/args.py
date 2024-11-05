@@ -2,18 +2,34 @@ import argparse
 
 _SINGLETON = None
 
+def _get_common_args_parser():
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description="Videoman API")
+    parser.add_argument(
+        '-v',
+        '--video-directory',
+        '-d',
+        '--dev',
+        type=str, 
+        help='The root directory to scan for videos.'
+    )
+
 def get_args():
     global _SINGLETON
     if _SINGLETON is None:
-        # Set up argument parsing
-        parser = argparse.ArgumentParser(description="Videoman API")
+        parser = _get_common_args_parser()
+        _SINGLETON = parser.parse_args()
+    return _SINGLETON
+
+def get_auto_args():
+    global _SINGLETON
+    if _SINGLETON is None:
+        parser = _get_common_args_parser()
         parser.add_argument(
-            '-v',
-            '--video-directory',
-            '-d',
-            '--dev',
-            type=str, 
-            help='The root directory to scan for videos.'
+            '-a',
+            '--apply',
+            action='store_true',
+            help='Apply the auto tagging'
         )
         _SINGLETON = parser.parse_args()
     return _SINGLETON
