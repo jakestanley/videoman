@@ -3,7 +3,7 @@ import re
 from api.db import get_redis_client
 
 def _validate_tag(tag):
-    tag = tag.lower().replace('-', '_')
+    tag = tag.lower().replace('-', '_').replace('.', '_')
     # Define the regular expression for alphanumeric tags with underscores
     pattern = r'^[a-zA-Z0-9_]+$'
     
