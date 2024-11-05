@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from collections import Counter
+
 from api.db import start_redis_server, stop_redis_server
 from api.args import get_args
 from api.tags import get_resources_without_tags
@@ -12,9 +14,31 @@ def start():
     start_redis_server()
     untagged = get_resources_without_tags()
     videos = get_videos_by_ids(untagged)
+
+    all_tags = []
+
+    # get potential tags for all videos
     for video in videos:
-        tags = assume_tags(video)
-        print(f"Assumed tags for video %s: %s" % (video["relative_path"], tags))
+        video_tags = assume_tags(video)
+        video['potential_tags'] = video_tags
+
+        # add to list of all tags
+        all_tags.extend(video_tags)
+
+    # reduce list of tags to a set of ones that occur more than once only
+    unique_tags_occurring_more_than_once = set()
+
+    counts = Counter(all_tags)
+    for value, count in counts.items():
+        if count > 1:
+            unique_tags_occurring_more_than_once.add(value)
+
+    # reduce potential_tags to tags contained in the "occur more than once" set
+    for video in videos:
+        potential_tags = video['potential_tags']
+        video['potential_tags'] = [tag for tag in potential_tags if tag in unique_tags_occurring_more_than_once]
+        print(f"Assumed tags for video %s: %s" % (video["relative_path"], video['potential_tags']))
+
     stop_redis_server()
 
 if __name__ == "__main__":
