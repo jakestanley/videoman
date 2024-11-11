@@ -63,7 +63,7 @@ def get_video_by_id(uuid):
 def hash_file_path(file_path):
     return hashlib.sha256(file_path.encode('utf-8')).hexdigest()
 
-def get_videos(sort):
+def get_videos(sort='created'):
     r = get_redis_client()
 
     all_uuids = r.smembers('uuids')
