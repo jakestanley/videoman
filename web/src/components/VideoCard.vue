@@ -1,14 +1,14 @@
 <template>
   <div class="video-card">
     <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
-    <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
+    <button class="btn btn-delete" @click="deleteVideo()">Delete</button>
     <p>{{ formattedDate }}</p>
     <p>{{ formattedMb }}</p>
     <div class="tags">
       <h1>Tags</h1>
       <ul>
         <li v-for="(item, index) in tags" :key="index">
-          {{ item }} <button class="btn btn-delete-tag">Delete</button>
+          {{ item }} <button class="btn btn-delete-tag">Untag</button>
         </li>
       </ul>
       
@@ -131,6 +131,13 @@ export default {
       axios.post(item.url)
       this.tagStore.createTag(item)
       console.log('Item clicked', item);
+    },
+    deleteVideo() {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const url = apiBaseUrl + "/videos/" + this.id + "/tags/" + "delete"
+      axios.post(url)
+      console.log("Deleted video", this.id)
+      // this.$emit('videoDeleted', this.id);
     }
   }
 }
