@@ -34,3 +34,16 @@ def get_auto_args():
         )
         _SINGLETON = parser.parse_args()
     return _SINGLETON
+
+def get_cleanup_args():
+    global _SINGLETON
+    if _SINGLETON is None:
+        parser = _get_common_args_parser()
+        parser.add_argument(
+            '-a',
+            '--apply',
+            action='store_true',
+            help='Apply destructive operations'
+        )
+        _SINGLETON = parser.parse_args()
+    return _SINGLETON

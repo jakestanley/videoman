@@ -70,7 +70,7 @@ def get_videos(sort):
 
     return get_videos_by_ids(all_uuids, sort)
 
-def get_videos_by_ids(ids, sort):
+def get_videos_by_ids(ids, sort='created'):
     videos = []
     for id in ids:
         video = get_video_by_id(id)
@@ -187,6 +187,10 @@ def list_videos():
             if os.path.splitext(file)[1].lower() in video_extensions:
                 relative_path = os.path.relpath(os.path.join(dirpath, file), video_directory)
                 process_video_file(relative_path)
+
+def delete_video(id):
+    # TODO remove any orphaned members/keys/etc
+    pass
 
 if __name__ == '__main__':
     list_videos('/Users/jake/Movies/BATW2/')
