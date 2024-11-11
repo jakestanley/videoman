@@ -17,11 +17,12 @@ def start():
 
     for video in videos:
         full_path = os.path.join(video_directory, video['relative_path'])
-        if args.apply:
-            print(f"Deleting video '{full_path}'")
-            os.remove(full_path)
-        else:
-            print(f"Would delete video '{full_path}' (run with --apply to delete for real)")
+        if os.path.exists(full_path):
+            if args.apply:
+                print(f"Deleting video '{full_path}'")
+                os.remove(full_path)
+            else:
+                print(f"Would delete video '{full_path}' (run with --apply to delete for real)")
 
     # check all remaining videos and remove any from the DB that no longer exist on disk (including previews)
     videos = get_videos()
