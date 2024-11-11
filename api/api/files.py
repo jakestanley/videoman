@@ -54,7 +54,7 @@ def get_video_by_id(uuid):
     safe_obj['id'] = obj['id']
     safe_obj['contents_hash'] = obj['contents_hash']
     safe_obj['relative_path'] = obj['relative_path']
-    safe_obj['mb'] = obj['mb']
+    safe_obj['mb'] = float(obj['mb'])
     safe_obj['created'] = obj['created']
     safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
 
