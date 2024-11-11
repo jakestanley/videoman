@@ -11,6 +11,7 @@ def _get_common_args_parser():
         '-d',
         '--dev',
         type=str, 
+        required=True,
         help='The root directory to scan for videos.'
     )
     return parser
