@@ -26,7 +26,7 @@ def get_videos():
     page = request.args.get('page', 0, type=int)
     sort = request.args.get('sort', 'created', type=str)
 
-    videos = fget_videos()
+    videos = fget_videos(sort)
     paged = paginate_items(videos, page, page_size=20)
 
     return jsonify(paged)
