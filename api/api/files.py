@@ -54,6 +54,7 @@ def get_video_by_id(uuid):
     safe_obj['id'] = obj['id']
     safe_obj['contents_hash'] = obj['contents_hash']
     safe_obj['relative_path'] = obj['relative_path']
+    safe_obj['mb'] = obj['mb']
     safe_obj['created'] = obj['created']
     safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
 
@@ -62,14 +63,14 @@ def get_video_by_id(uuid):
 def hash_file_path(file_path):
     return hashlib.sha256(file_path.encode('utf-8')).hexdigest()
 
-def get_videos():
+def get_videos(sort):
     r = get_redis_client()
 
     all_uuids = r.smembers('uuids')
 
-    return get_videos_by_ids(all_uuids)
+    return get_videos_by_ids(all_uuids, sort)
 
-def get_videos_by_ids(ids):
+def get_videos_by_ids(ids, sort):
     videos = []
     for id in ids:
         video = get_video_by_id(id)
@@ -79,7 +80,7 @@ def get_videos_by_ids(ids):
         videos.append(video)
 
     # default sort. sorting should be done elsewhere
-    videos.sort(key=lambda x: x['created'], reverse=True)
+    videos.sort(key=lambda x: x[sort], reverse=True)
     return videos
 
 def process_video_file(relative_path):
@@ -125,6 +126,7 @@ def process_video_file(relative_path):
             video = {
                 'id': id,
                 'relative_path': relative_path,
+                'mb': os.path.getsize(full_path) / (1024 * 1024),
                 'created': os.path.getctime(full_path),
                 'modified': os.path.getmtime(full_path),
                 'contents_hash': hash
@@ -134,6 +136,8 @@ def process_video_file(relative_path):
             if not video.get('created'):
                 video['created'] = os.path.getctime(full_path)
             # if video has modified key and it has not changed, skip the rehash
+            if not video.get('mb'):
+                video['mb'] = os.path.getsize(full_path) / (1024 * 1024)
             if video.get('modified') and video['modified'] == f"{os.path.getmtime(full_path)}":
                 print(f"Modified: No", end=' ')
             else:

@@ -24,6 +24,7 @@ def home():
 @app.route("/videos", methods=['GET'])
 def get_videos():
     page = request.args.get('page', 0, type=int)
+    sort = request.args.get('sort', 'created', type=str)
 
     videos = fget_videos()
     paged = paginate_items(videos, page, page_size=20)
@@ -33,13 +34,14 @@ def get_videos():
 @app.route("/tags/<tag>/videos", methods=['GET'])
 def get_videos_by_tag(tag):
     page = request.args.get('page', 0, type=int)
+    sort = request.args.get('sort', 'created', type=str)
 
     ids = []
     if tag == 'untagged':
         ids = tags.get_resources_without_tags()
     else:
         ids = tags.get_resources_by_tag(tag)
-    videos = get_videos_by_ids(ids)
+    videos = get_videos_by_ids(ids, sort=sort)
     paged = paginate_items(videos, page, page_size=20)
 
     return jsonify(paged)

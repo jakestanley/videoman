@@ -36,7 +36,7 @@ def _get_filename_date(video):
 
     ftime_date = dt_object.date()
     return ftime_date
-    
+
 def _get_other_tags(video):
 
     pattern = r"\b\d{4}-?\d{2}-?\d{2}(?:[\s_-](\d{2}[-_:]\d{2}(?:[-_:]\d{2})?))?\b"
