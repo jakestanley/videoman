@@ -104,7 +104,8 @@ def remove_video(relative_path):
     # remove preview
     cache_dir = get_cache_dir(video_directory)
     preview_path = os.path.join(cache_dir, f"{video['contents_hash']}.webm")
-    os.remove(preview_path)
+    if os.path.exists(preview_path):
+        os.remove(preview_path)
 
     r.srem('uuids', id)
     r.delete(file_path_hash)
