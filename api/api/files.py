@@ -9,7 +9,7 @@ import json
 from api.args import get_args
 from api.preview import generate_preview
 from api.cache import get_cache_dir
-from api.tags import get_tags_by_resource
+from api.tags import get_tags_by_resource, remove_resource
 from api.db import get_redis_client
 
 # TODO: scanner worker/background task
@@ -83,6 +83,33 @@ def get_videos_by_ids(ids, sort='created'):
     videos.sort(key=lambda x: x[sort], reverse=True)
     return videos
 
+def remove_video(relative_path):
+    video_directory = get_args().video_directory
+
+    full_path = os.path.join(video_directory, relative_path)
+    file_path_hash = hash_file_path(full_path)
+
+    r = get_redis_client()
+    id = r.get(file_path_hash)
+
+    if id is None:
+        return
+    
+    remove_resource(id)
+    
+    video = get_video_by_id(id)
+    if video is None:
+        return
+
+    # remove preview
+    cache_dir = get_cache_dir(video_directory)
+    preview_path = os.path.join(cache_dir, f"{video['contents_hash']}.webm")
+    os.remove(preview_path)
+
+    r.srem('uuids', id)
+    r.delete(file_path_hash)
+    r.delete(id)
+
 def process_video_file(relative_path):
     video_directory = get_args().video_directory
 
@@ -155,6 +182,7 @@ def process_video_file(relative_path):
         r.hset(id, mapping=video)
 
         # generate gif if it doesn't exist for this hash
+        # TODO: preview.py should handle all cache directory management bollocks
         cache_dir = get_cache_dir(video_directory)
         gif_output_path = os.path.join(cache_dir, f"{video['contents_hash']}.webm")
         if not os.path.exists(gif_output_path):

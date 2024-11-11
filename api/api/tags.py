@@ -34,6 +34,18 @@ def remove_tag_from_resource(resource_id, tag):
     if r.scard(f'tag:{tag}') == 0:
         r.delete(f'tag:{tag}')
 
+def remove_resource(resource_id):
+    r = get_redis_client()
+
+    # get all tags the resource has
+    tags = r.smembers(f'resource:{resource_id}')
+    # remove resource from all tags
+    for tag in tags:
+        r.srem(f'tag:{tag}', resource_id)
+
+    # finally delete the entire resource tag set
+    r.delete(f'resource:{resource_id}')
+
 # Get all resources with a specific tag
 def get_resources_by_tag(tag):
     r = get_redis_client()

@@ -70,5 +70,9 @@ def generate_preview(video_path, gif_output_path=None):
     generate_frames(video_path, interval_length, intervals, frames_dir)
     generate_gif(frames_dir, gif_output_path)
 
+def remove_preview(video_path):
+    gif_output_path = os.path.splitext(video_path)[0] + ".webm"
+    os.remove(gif_output_path)
+
 if __name__ == '__main__':
     generate_preview('/Users/jake/Downloads/Peter Pan.MOV')
