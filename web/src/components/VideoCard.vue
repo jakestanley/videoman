@@ -3,6 +3,7 @@
     <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
     <button class="btn btn-delete" onclick="deleteVideo('${video.id}')">Delete</button>
     <p>{{ formattedDate }}</p>
+    <p>{{ formattedMb }}</p>
     <div class="tags">
       <h1>Tags</h1>
       <ul>
@@ -50,6 +51,10 @@ export default {
       type: String,
       default: 'no hash'
     },
+    mb: {
+      type: Number,
+      default: 0.0
+    },
     tags: {
       type: Array,
       required: false,
@@ -72,6 +77,14 @@ export default {
       const date = new Date(parseFloat(this.created_date) * 1000);
       const formattedDate = date.toISOString().split('T')[0];
       return formattedDate;
+    },
+    formattedMb() {
+      const mb = Math.floor(this.mb);
+      if (mb >= 1000) {
+        return (mb / 1000).toFixed(1) + " GB";
+      } {
+        return mb + " MB";
+      }
     },
     videoUrl() {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;

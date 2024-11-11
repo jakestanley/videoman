@@ -3,6 +3,7 @@
     <h1>Videoman</h1>
     <button class="btn" @click="previousPage()">Previous page</button>
     <button class="btn" @click="nextPage()">Next page</button>
+    <button class="btn" @click="sortBySize()">Sort by size</button>
     <div class="video-grid">
       <VideoCard
         v-for="(video, index) in videos"
@@ -12,6 +13,7 @@
         :relative_path="video.relative_path"
         :tags="video.tags"
         :created_date="video.created"
+        :mb="video.mb"
       />
     </div>
   </div>
@@ -30,7 +32,8 @@ export default {
     return {
       videos: [],
       tag: "",
-      page: 0
+      page: 0,
+      sort: 'created'
     }
   },
   created() {
@@ -50,6 +53,15 @@ export default {
         if (newPage != oldPage) {
           this.fetchVideosByTag(this.tag)
           console.log("will fetch page " + newPage)
+        }
+      }
+    },
+    '$route.query.sort': {
+      immediate: true,
+      handler(newSort, oldSort) {
+        if (newSort != oldSort) {
+          this.sort = newSort;
+          this.fetchVideosByTag(this.tag)
         }
       }
     }
@@ -78,12 +90,21 @@ export default {
         },
       });
     },
+    async sortBySize() {
+      this.$router.push({
+        query: {
+          ...this.$route.query, // Keep the existing query parameters
+          sort: "mb" // Add or update the new parameter
+        }
+      });
+    },
     async fetchVideos() {
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
         const response = await axios.get(`${apiBaseUrl}/videos`, {
           params: {
-            page: this.page
+            page: this.page,
+            sort: this.sort
           }
         })
         this.videos = response.data.map((video) => ({
@@ -104,7 +125,8 @@ export default {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
         const response = await axios.get(`${apiBaseUrl}/tags/${tag}/videos`, {
           params: {
-            page: this.page
+            page: this.page,
+            sort: this.sort
           }
         })
         this.videos = response.data.map((video) => ({
