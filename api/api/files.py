@@ -60,8 +60,8 @@ def get_video_by_id(uuid):
         safe_obj['created'] = obj['created']
         safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
     except KeyError as k:
-        print(f"KeyError reading {uuid}")
-        raise k
+        print(f"KeyError reading {uuid}. Possible outdated. Will be updated on next scan")
+        return {}
 
     return safe_obj
 
