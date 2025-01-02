@@ -51,12 +51,17 @@ def get_video_by_id(uuid):
     safe_obj = {}
     if obj == {}:
         return {}
-    safe_obj['id'] = obj['id']
-    safe_obj['contents_hash'] = obj['contents_hash']
-    safe_obj['relative_path'] = obj['relative_path']
-    safe_obj['mb'] = float(obj['mb'])
-    safe_obj['created'] = obj['created']
-    safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
+    
+    try:
+        safe_obj['id'] = obj['id']
+        safe_obj['contents_hash'] = obj['contents_hash']
+        safe_obj['relative_path'] = obj['relative_path']
+        safe_obj['mb'] = float(obj['mb'])
+        safe_obj['created'] = obj['created']
+        safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
+    except KeyError as k:
+        print(f"KeyError reading {uuid}")
+        raise k
 
     return safe_obj
 
@@ -168,6 +173,8 @@ def process_video_file(relative_path):
                 video['mb'] = os.path.getsize(full_path) / (1024 * 1024)
             if video.get('modified') and video['modified'] == f"{os.path.getmtime(full_path)}":
                 print(f"Modified: No", end=' ')
+            if not video.get('relative_path'):
+                video['relative_path'] = relative_path
             else:
                 print(f"Modified: Yes", end=' ')
                 hasher = hashlib.sha256()
