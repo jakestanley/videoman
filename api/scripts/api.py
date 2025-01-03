@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request
-
+import threading
 from api.args import get_args
 from api.cache import get_cache_dir
 from api.db import start_redis_server, stop_redis_server
-from api.files import get_videos as fget_videos, get_videos_by_ids
+from api.files import get_videos as fget_videos, get_videos_by_ids, list_videos
 from api.security import setup_cors
 import api.tags as tags
 
@@ -64,7 +64,15 @@ def remove_tag(video_id, tag):
 def start():
     # stop_redis_server() # TODO: check if already running redis server
     start_redis_server()
-    app.run(debug=False)
+
+    if args.no_scan:
+        print("Skipping scan")
+        pass
+    else: 
+        video_thread = threading.Thread(target=list_videos, daemon=True)
+        video_thread.start()
+
+    app.run(debug=False, host='0.0.0.0')
 
 if __name__ == '__main__':
     start()

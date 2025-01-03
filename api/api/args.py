@@ -8,11 +8,14 @@ def _get_common_args_parser():
     parser.add_argument(
         '-v',
         '--video-directory',
-        '-d',
-        '--dev',
         type=str, 
         required=True,
         help='The root directory to scan for videos.'
+    )
+    parser.add_argument(
+        '--no-scan',
+        action='store_true',
+        help='Do not scan for videos'
     )
     return parser
 
@@ -32,6 +35,11 @@ def get_auto_args():
             '--apply',
             action='store_true',
             help='Apply the auto tagging'
+        )
+        parser.add_argument(
+            '--all',
+            action='store_true',
+            help="Don't limit to untagged videos"
         )
         _SINGLETON = parser.parse_args()
     return _SINGLETON

@@ -3,24 +3,34 @@ from collections import Counter
 
 from api.db import start_redis_server, stop_redis_server
 from api.args import get_auto_args
-from api.tags import get_resources_without_tags
+from api.tags import get_resources_without_tags, get_resources
 from api.files import get_videos_by_ids
 from api.auto import assume_tags
 from api.tags import add_tag_to_resource
 
 def start():
-    print("Running auto on untagged videos")
 
     args = get_auto_args()
     start_redis_server()
-    untagged = get_resources_without_tags()
+
+    if args.all:
+        print("Running auto on all videos")
+        untagged = get_resources()
+    else:
+        print("Running auto on untagged videos")
+        untagged = get_resources_without_tags()
+
     videos = get_videos_by_ids(untagged)
 
     all_tags = []
 
     # get potential tags for all videos
     for video in videos:
+        
         video_tags = assume_tags(video)
+        # for video_tag in video_tags:
+        #     parse_date()
+
         video['potential_tags'] = video_tags
 
         # add to list of all tags

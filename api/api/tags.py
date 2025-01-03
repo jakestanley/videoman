@@ -46,6 +46,10 @@ def remove_resource(resource_id):
     # finally delete the entire resource tag set
     r.delete(f'resource:{resource_id}')
 
+def get_resources():
+    r = get_redis_client()
+    return r.smembers('uuids')
+
 # Get all resources with a specific tag
 def get_resources_by_tag(tag):
     r = get_redis_client()

@@ -60,7 +60,8 @@ def get_video_by_id(uuid):
         safe_obj['created'] = obj['created']
         safe_obj['tags'] = list(get_tags_by_resource(resource_id=uuid))
     except KeyError as k:
-        print(f"KeyError reading {uuid}. Possible outdated. Will be updated on next scan")
+        print(f"KeyError reading {uuid}. Possibly outdated. Will be updated on next scan")
+        r.delete(uuid)
         return {}
 
     return safe_obj
@@ -160,6 +161,7 @@ def process_video_file(relative_path):
                 'id': id,
                 'relative_path': relative_path,
                 'mb': os.path.getsize(full_path) / (1024 * 1024),
+                # TODO: if file path contains a date, then use that
                 'created': os.path.getctime(full_path),
                 'modified': os.path.getmtime(full_path),
                 'contents_hash': hash
@@ -167,6 +169,7 @@ def process_video_file(relative_path):
         else:
             # set created date if it does not exist
             if not video.get('created'):
+                # TODO: if file path contains a date, then use that
                 video['created'] = os.path.getctime(full_path)
             # if video has modified key and it has not changed, skip the rehash
             if not video.get('mb'):
