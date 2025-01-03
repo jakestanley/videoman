@@ -41,6 +41,11 @@ def get_auto_args():
             action='store_true',
             help="Don't limit to untagged videos"
         )
+        parser.add_argument(
+            '--purge',
+            action='store_true',
+            help='Destroy existing tags'
+        )
         _SINGLETON = parser.parse_args()
     return _SINGLETON
 

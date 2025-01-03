@@ -6,7 +6,7 @@ from api.args import get_auto_args
 from api.tags import get_resources_without_tags, get_resources
 from api.files import get_videos_by_ids
 from api.auto import assume_tags
-from api.tags import add_tag_to_resource
+from api.tags import add_tag_to_resource, purge_tags
 
 def start():
 
@@ -52,6 +52,11 @@ def start():
 
     # apply tags if such argument is true
     if args.apply:
+
+        if args.purge:
+            print("Applying purge")
+            purge_tags()
+
         print("Applying tags")
         for video in videos:
             for tag in video['potential_tags']:

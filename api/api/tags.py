@@ -2,6 +2,15 @@ import re
 
 from api.db import get_redis_client
 
+def _delete_keys_by_pattern(redis_client, pattern):
+    cursor = 0
+    while True:
+        cursor, keys = redis_client.scan(cursor=cursor, match=pattern)
+        if keys:
+            redis_client.delete(*keys)
+        if cursor == 0:
+            break
+
 def _validate_tag(tag):
     tag = tag.lower().replace('-', '_').replace('.', '_')
     # Define the regular expression for alphanumeric tags with underscores
@@ -91,3 +100,8 @@ def list_all_tags():
 
     tags.sort(key=lambda x: x['resource_count'], reverse=True)
     return tags
+
+def purge_tags():
+    redis_client = get_redis_client()
+    _delete_keys_by_pattern(redis_client, "tag:*")
+    _delete_keys_by_pattern(redis_client, "resource:*")
