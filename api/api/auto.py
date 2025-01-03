@@ -29,7 +29,10 @@ def _get_filename_date(video):
         dt_object = datetime.strptime(date_str, '%Y-%m-%d')
 
         r = get_redis_client()
-        r.hset(id, "created", f"{dt_object.timestamp()}")
+
+        timestamp = f"{dt_object.timestamp()}"
+
+        r.hset(video['id'], "created", timestamp)
 
     except ValueError:
         pass
