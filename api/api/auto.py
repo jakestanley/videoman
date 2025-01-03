@@ -79,16 +79,16 @@ def assume_tags(video):
     # you'll need to format ctime_date before you use it as a tag
     ftime_date = _get_filename_date(video)
     if ftime_date is not None:
-        tags.append(ftime_date.strftime('%Y-%m-%d'))
+        # tags.append(ftime_date.strftime('%Y-%m-%d'))
         tags.append(f"{ftime_date.year}")
     else:
         ctime_date = _get_ctime_date(video)
-        tags.append(ctime_date.strftime('%Y-%m-%d'))
+        # tags.append(ctime_date.strftime('%Y-%m-%d'))
         tags.append(f"{ctime_date.year}")
 
     tags.extend(_get_other_tags(video))
 
-    excluded_tags = ["delete"]
+    excluded_tags = ["delete", "and"]
     tags = [tag for tag in tags if tag and tag.lower() not in excluded_tags]
 
     return tags
