@@ -4,6 +4,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from api.db import get_redis_client
+
 date_pattern = r"(\d{4}-?\d{2}-?\d{2})"
 
 def _get_ctime_date(video):
@@ -25,6 +27,10 @@ def _get_filename_date(video):
 
     try:
         dt_object = datetime.strptime(date_str, '%Y-%m-%d')
+
+        r = get_redis_client()
+        r.hset(id, "created", f"{dt_object.timestamp()}")
+
     except ValueError:
         pass
 
