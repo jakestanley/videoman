@@ -1,11 +1,12 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 import threading
 from api.args import get_args
 from api.cache import get_cache_dir
 from api.db import start_redis_server, stop_redis_server
-from api.files import get_videos as fget_videos, get_videos_by_ids, list_videos
+from api.files import get_videos as fget_videos, get_videos_by_ids, list_videos, get_video_by_id
 from api.security import setup_cors
 import api.tags as tags
+import os
 
 args = get_args()
 # TODO make sure we don't share redis files, consider using a subdirectory in the cache for those
@@ -21,6 +22,7 @@ def paginate_items(items, page, page_size=20):
 def home():
     return jsonify({"message": "UP"})
 # TODO move these into a routes or web package?
+
 @app.route("/videos", methods=['GET'])
 def get_videos():
     page = request.args.get('page', 0, type=int)
@@ -49,6 +51,12 @@ def get_videos_by_tag(tag):
 @app.route("/tags", methods=['GET'])
 def get_tags():
     return jsonify(tags.list_all_tags())
+
+@app.route("/videos/<video_id>", methods=['GET'])
+def get_video(video_id):
+    video = get_video_by_id(video_id)
+    file_path = os.path.join(args.video_directory, video['relative_path'])
+    return send_file(file_path)
 
 @app.route("/videos/<video_id>/tags/<tag>", methods=['POST'])
 def add_tag(video_id, tag):

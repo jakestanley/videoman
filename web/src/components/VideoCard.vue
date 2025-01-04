@@ -1,6 +1,8 @@
 <template>
   <div class="video-card">
-    <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
+    <a :href="fullVideoUrl" target="_blank" rel="noopener noreferrer">
+      <video class="video-element" autoplay loop :src="videoUrl">{{ relative_path }}</video>
+    </a>
     <button class="btn btn-delete" @click="deleteVideo()">Delete</button>
     <p>{{ formattedDate }}</p>
     <p>{{ formattedMb }}</p>
@@ -73,6 +75,10 @@ export default {
     };
   },
   computed: {
+    fullVideoUrl() {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      return `${apiBaseUrl}/videos/${this.id}`
+    },
     formattedDate() {
       const date = new Date(parseFloat(this.created_date) * 1000);
       const formattedDate = date.toISOString().split('T')[0];
